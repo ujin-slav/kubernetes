@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nodeapp
+  labels:
+    app: nodeapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nodeapp
+  template:
+    metadata:
+      labels:
+        app: nodeapp 
+    spec:
+      volumes:
+      - name: logs-storage
+        persistentVolumeClaim:
+          claimName: claim
+      containers:
+      - name: nodeserver
+        image: ujinslav/nodeapp
+        ports:
+        - containerPort: 3000
+        volumeMounts:
+        - mountPath: "/app/data"
+          name: logs-storage
+        env:
+        - name: "DB_HOST"
+          valueFrom:
+            configMapKeyRef:
+              name: config
+              key: DB_HOST
+        - name: "DB_PORT"
+          valueFrom:
+            configMapKeyRef:
+              name: config
+              key: DB_PORT
+        - name: "DB_USER"
+          valueFrom:
+            configMapKeyRef:
+              name: config
+              key: DB_USER
